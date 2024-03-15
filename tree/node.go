@@ -5,6 +5,9 @@ import rl "github.com/gen2brain/raylib-go/raylib"
 type DisplayNode struct {
 	Index int
 	Color rl.Color
+
+	Corner rl.Vector2
+	Size   rl.Vector2
 }
 
 type Node struct {

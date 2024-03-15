@@ -53,7 +53,11 @@ func (t *FileTree) AddFile(fullPath string, file fs.FileInfo) {
 // @Cleanup: This is maybe should go method, once i move the
 // Tree to interface and implement FileTree here...
 func InitFileTree(dir string) (*FileTree, error) {
-	t := &FileTree{}
+	t := &FileTree{
+		Tree: tree.Tree{
+			Dirty: true,
+		},
+	}
 
 	// @Note: Root is a special case
 	t.initRoot(dir)

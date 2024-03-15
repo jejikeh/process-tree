@@ -1,7 +1,8 @@
-package main
+package window
 
 import (
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"github.com/jejikeh/process-tree/entity"
 )
 
 type Window struct {
@@ -11,6 +12,8 @@ type Window struct {
 
 	Flags uint32
 	GUI   *Gui
+
+	EntityManager *entity.EntityManager
 }
 
 const WindowTitle = "process tree"
@@ -21,7 +24,7 @@ var WindowSize = rl.Vector2{
 }
 
 const WindowFPS = 60
-const WindowFlags = rl.FlagWindowHighdpi | rl.FlagWindowResizable
+const WindowFlags = rl.FlagWindowResizable | rl.FlagMsaa4xHint | rl.FlagWindowHighdpi
 
 func NewWindow() *Window {
 	// @Incomplete: get theese values from .conf file
@@ -36,16 +39,24 @@ func NewWindow() *Window {
 	rl.InitWindow(int32(w.Size.X), int32(w.Size.Y), w.Title)
 	rl.SetTargetFPS(w.TargetFPS)
 
+	rl.SetWindowMinSize(int(w.Size.X), int(w.Size.Y))
+
 	w.GUI = NewGui()
+
+	w.EntityManager = &entity.EntityManager{
+		Entities: make([]entity.Entity, 0),
+	}
 
 	return w
 }
 
-func (w *Window) Run(run func()) {
+func (w *Window) Run(update func(), draw func()) {
 	for !rl.WindowShouldClose() {
+		update()
+
 		rl.BeginDrawing()
 
-		run()
+		draw()
 
 		rl.EndDrawing()
 	}

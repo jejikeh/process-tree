@@ -1,4 +1,4 @@
-package main
+package window
 
 import (
 	gui "github.com/gen2brain/raylib-go/raygui"
