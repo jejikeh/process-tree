@@ -1,7 +1,9 @@
 package main
 
 import (
-	"github.com/jejikeh/process-tree/tree"
+	"fmt"
+
+	"github.com/jejikeh/process-tree/filetree"
 )
 
 // "fmt"
@@ -17,11 +19,15 @@ import (
 func main() {
 	sample := "./samples/file/random/"
 
-	_, err := tree.InitTree(sample)
+	t, err := filetree.InitFileTree(sample)
 
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println()
+	fmt.Printf("Total size: \t\t'%f'\n", t.ComputeSize())
+	fmt.Printf("Total number of nodes: \t'%d'\n", len(t.Nodes))
 
 	// fmt.Println(t.TreeDump())
 

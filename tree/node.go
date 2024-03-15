@@ -9,7 +9,7 @@ type DisplayNode struct {
 
 type Node struct {
 	Name string
-	Size float32
+	Size float64
 
 	Parent    *Node
 	Childrens []*Node
