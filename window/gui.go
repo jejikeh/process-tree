@@ -2,7 +2,10 @@ package window
 
 import (
 	gui "github.com/gen2brain/raylib-go/raygui"
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
+
+var Font rl.Font
 
 type Gui struct {
 	Style string

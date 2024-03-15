@@ -14,20 +14,23 @@ type Treemap struct {
 }
 
 func NewTreemap(t *tree.Tree) *Treemap {
-	return &Treemap{
+	tr := &Treemap{
 		Transform: &Transform{
-			Position: rl.Vector2{X: float32(rl.GetScreenWidth()) / 2, Y: float32(rl.GetScreenHeight()) / 2},
+			Position: rl.Vector2{X: 12, Y: 12},
 			Size:     rl.Vector2{X: 640 - 24, Y: 480 - 64},
 		},
-		RenderRect:  rl.NewRectangle(12, 12, float32(rl.GetScreenWidth())-24, float32(rl.GetScreenHeight())-64),
 		Tree:        t,
 		DisplayTree: tree.InitDisplayTree(t),
 	}
+
+	tr.RenderRect = rl.NewRectangle(tr.Position.X, tr.Position.Y, tr.Size.X, tr.Size.Y)
+
+	return tr
 }
 
 func (t *Treemap) Draw() {
-	t.DisplayTree.ComputeSize(t.Size)
 	t.Tree.ComputeSize()
+	t.DisplayTree.ComputeSize(t.Size)
 
 	rl.DrawRectangleGradientEx(t.RenderRect, rl.Red, rl.Orange, rl.Black, rl.Orange)
 }

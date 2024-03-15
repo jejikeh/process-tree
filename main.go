@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/jejikeh/process-tree/entity"
 	"github.com/jejikeh/process-tree/filetree"
@@ -20,11 +18,7 @@ func main() {
 
 	w := window.NewWindow()
 
-	entity.Font = rl.LoadFont("assets/fonts/Martel-Regular.ttf")
-
-	l := entity.NewText(rl.Vector2{X: 12, Y: 436}, fmt.Sprintf("Total size: \t\t'%f'\nTotal number of nodes: \t'%d'", t.ComputeSize(), len(t.Nodes)))
-
-	w.EntityManager.Add(l)
+	window.Font = rl.LoadFont("assets/fonts/Martel-Regular.ttf")
 
 	w.EntityManager.Add(entity.NewTreemap(&t.Tree))
 
