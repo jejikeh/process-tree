@@ -1,38 +1,53 @@
 package entity
 
-import (
-	rl "github.com/gen2brain/raylib-go/raylib"
-)
-
-type Transform struct {
-	Position rl.Vector2
-	Size     rl.Vector2
-	Rotate   float32
-}
+import rl "github.com/gen2brain/raylib-go/raylib"
 
 type Entity interface {
+	Start()
 	Update()
-	Draw()
+	Render(offset rl.Vector2)
 }
 
-type EntityManager struct {
-	*Transform
-
+type EntityBucket struct {
 	Entities []Entity
 }
 
-func (e *EntityManager) Add(entity Entity) {
-	e.Entities = append(e.Entities, entity)
-}
-
-func (e *EntityManager) Draw() {
-	for _, entity := range e.Entities {
-		entity.Draw()
+func NewEntityBucket() *EntityBucket {
+	return &EntityBucket{
+		Entities: []Entity{},
 	}
 }
 
-func (e *EntityManager) Update() {
-	for _, entity := range e.Entities {
+func (b *EntityBucket) AddEntity(entity Entity) {
+	b.Entities = append(b.Entities, entity)
+}
+
+func (b *EntityBucket) RemoveEntity(entity Entity) {
+	for i, e := range b.Entities {
+		if e == entity {
+			b.Entities = append(b.Entities[:i], b.Entities[i+1:]...)
+		}
+	}
+}
+
+func (b *EntityBucket) Clear() {
+	b.Entities = []Entity{}
+}
+
+func (b *EntityBucket) Start() {
+	for _, entity := range b.Entities {
+		entity.Start()
+	}
+}
+
+func (b *EntityBucket) Update() {
+	for _, entity := range b.Entities {
 		entity.Update()
+	}
+}
+
+func (b *EntityBucket) Render(offset rl.Vector2) {
+	for _, entity := range b.Entities {
+		entity.Render(offset)
 	}
 }

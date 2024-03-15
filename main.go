@@ -3,30 +3,50 @@ package main
 import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/jejikeh/process-tree/entity"
-	"github.com/jejikeh/process-tree/filetree"
-	"github.com/jejikeh/process-tree/window"
 )
 
+var GameInstance *Game
+
 func main() {
-	sample := "./samples/file/random/"
+	// sample := "./samples/file/random/"
 
-	t, err := filetree.InitFileTree(sample)
+	// _, err := filetree.InitFileTree(sample)
 
-	if err != nil {
-		panic(err)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	GameInstance = NewGame(NewMainScene())
+
+	GameInstance.Run()
+}
+
+type MainScene struct {
+	*entity.Scene
+	Circle entity.Circle
+}
+
+func NewMainScene() *MainScene {
+	m := &MainScene{
+		Scene:  entity.NewScene("Main", 0, 0),
+		Circle: *entity.NewCirlce(400, 300, 100, rl.Red),
 	}
 
-	w := window.NewWindow()
+	m.EntityBucket.AddEntity(m.Circle)
 
-	window.Font = rl.LoadFont("assets/fonts/Martel-Regular.ttf")
+	m.EntityBucket.AddEntity(NewThemeSwitcher(GameWidth/2, GameHeight/2-124))
 
-	w.EntityManager.Add(entity.NewTreemap(&t.Tree))
+	return m
+}
 
-	w.Run(func() {
-		w.EntityManager.Update()
-	}, func() {
-		rl.ClearBackground(rl.RayWhite)
+func (m *MainScene) Start() {
+	m.EntityBucket.Start()
+}
 
-		w.EntityManager.Draw()
-	})
+func (m *MainScene) Update() {
+	m.EntityBucket.Update()
+}
+
+func (m *MainScene) Render(offset rl.Vector2) {
+	m.EntityBucket.Render(m.Position)
 }
