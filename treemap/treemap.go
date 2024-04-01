@@ -68,8 +68,8 @@ func (t *Treemap) ComputeSizes() float64 {
 }
 
 func (t *Treemap) ReComputeSizes() float64 {
-	// Reset directory sizes
 	for _, node := range t.Nodes {
+		// @Note: This is directory
 		if len(node.Childrens) != 0 {
 			node.Size = 0
 		}
