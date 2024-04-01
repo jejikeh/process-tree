@@ -4,20 +4,31 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/jejikeh/process-tree/treemap"
 )
 
-func InitTreemap(path string) (*treemap.Treemap, error) {
+// @Cleanup: I think it is better to move foundFolders and tree.NewTreemap() to a struct.
+// struct can be internal, i think it will be the better solution, instead of passing tree by parameter?
+
+var foundFolders = make(map[string]*treemap.Node)
+
+func InitTreemap(path string) (treemap.Treemap, error) {
 	tree := treemap.NewTreemap()
 
 	if err := filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
 		return visitFile(path, &tree, d, err)
 	}); err != nil {
-		return nil, err
+		return tree, err
 	}
 
-	return nil, nil
+	sort.Slice(tree.Nodes, func(i, j int) bool {
+		return len(tree.Nodes[i].Name) < len(tree.Nodes[j].Name)
+	})
+
+	return tree, nil
 }
 
 func visitFile(path string, tree *treemap.Treemap, d fs.DirEntry, err error) error {
@@ -26,10 +37,62 @@ func visitFile(path string, tree *treemap.Treemap, d fs.DirEntry, err error) err
 	}
 
 	if d.IsDir() {
-		fmt.Printf("DIRECTORY: %s\n", filepath.Dir(d.Name()))
+		if err = addDirectoryNode(tree, path); err != nil {
+			return err
+		}
 	} else {
-		fmt.Printf("FILE: %s\n", d.Name())
+		fileInfo, _ := d.Info()
+
+		if err = addFileNode(tree, path, fileInfo); err != nil {
+			return err
+		}
 	}
+
+	return nil
+}
+
+func addDirectoryNode(tree *treemap.Treemap, path string) error {
+	path = strings.TrimSuffix(path, "/")
+
+	basepath := filepath.Dir(path)
+
+	var parent *treemap.Node
+
+	parent, parentWasFound := foundFolders[basepath]
+
+	if !parentWasFound && len(tree.Nodes) > 0 {
+		return fmt.Errorf("parent not found for '%s', root '%s'\n", basepath, tree.Nodes[0].Name)
+	}
+
+	node, err := tree.Add(path, parent)
+
+	if err != nil {
+		return err
+	}
+
+	foundFolders[path] = node
+
+	return nil
+}
+
+func addFileNode(tree *treemap.Treemap, path string, fileInfo fs.FileInfo) error {
+	var parent *treemap.Node
+
+	basepath := filepath.Dir(path)
+
+	parent, parentWasFound := foundFolders[basepath]
+
+	if !parentWasFound {
+		return fmt.Errorf("the file %s has unknown directory!", basepath)
+	}
+
+	node, err := tree.Add(path, parent)
+
+	if err != nil {
+		return err
+	}
+
+	node.Size = float64(fileInfo.Size())
 
 	return nil
 }

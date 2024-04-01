@@ -12,24 +12,26 @@ type DisplayNode struct {
 type TreemapDisplay struct {
 }
 
-type TreemapNode struct {
+type Node struct {
 	Name      string
 	Size      float64
-	Parent    *TreemapNode
-	Childrens []*TreemapNode
+	Parent    *Node
+	Childrens []*Node
 }
 
 type Treemap struct {
-	Nodes []TreemapNode
+	Nodes []*Node
+
+	Root *Node
 }
 
 func NewTreemap() Treemap {
 	return Treemap{
-		Nodes: make([]TreemapNode, 0),
+		Nodes: make([]*Node, 0),
 	}
 }
 
-func (t *Treemap) Add(name string, parent *TreemapNode) (*TreemapNode, error) {
+func (t *Treemap) Add(name string, parent *Node) (*Node, error) {
 	if len(t.Nodes) == 0 && parent != nil {
 		return nil, fmt.Errorf("the root node cannot have a parent")
 	}
@@ -38,7 +40,7 @@ func (t *Treemap) Add(name string, parent *TreemapNode) (*TreemapNode, error) {
 		return nil, fmt.Errorf("the non-root node must have a parent")
 	}
 
-	node := TreemapNode{
+	node := &Node{
 		Name:   name,
 		Size:   0,
 		Parent: parent,
@@ -47,9 +49,39 @@ func (t *Treemap) Add(name string, parent *TreemapNode) (*TreemapNode, error) {
 	t.Nodes = append(t.Nodes, node)
 
 	if parent != nil {
-		// @Incomplete: Maybe i can use just node here?
-		parent.Childrens = append(parent.Childrens, &t.Nodes[len(t.Nodes)-1])
+		parent.Childrens = append(parent.Childrens, t.Nodes[len(t.Nodes)-1])
 	}
 
-	return &t.Nodes[len(t.Nodes)-1], nil
+	if len(t.Nodes) == 1 {
+		t.Root = t.Nodes[len(t.Nodes)-1]
+	}
+
+	return t.Nodes[len(t.Nodes)-1], nil
+}
+
+func (t *Treemap) ComputeSizes() float64 {
+	if t.Root.Size == 0.0 {
+		return t.ReComputeSizes()
+	}
+
+	return t.Root.Size
+}
+
+func (t *Treemap) ReComputeSizes() float64 {
+	// Reset directory sizes
+	for _, node := range t.Nodes {
+		if len(node.Childrens) != 0 {
+			node.Size = 0
+		}
+	}
+
+	for i := len(t.Nodes) - 1; i >= 1; i-- {
+		node := t.Nodes[i]
+
+		fmt.Println(node.Parent.Name)
+
+		node.Parent.Size += node.Size
+	}
+
+	return t.Root.Size
 }

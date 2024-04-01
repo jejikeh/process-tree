@@ -7,7 +7,7 @@ func TestAddWrongNodes(t *testing.T) {
 
 	// cant add root-node with parent
 	rootNode := "root_node"
-	_, err := tree.Add(rootNode, &TreemapNode{})
+	_, err := tree.Add(rootNode, &Node{})
 
 	if err == nil {
 		t.Fatalf("root node cant have a parent")
@@ -53,7 +53,7 @@ func TestAddNode(t *testing.T) {
 		t.Fatalf("the added node name need to be %s, but got %s", testNode, node.Name)
 	}
 
-	if node != &tree.Nodes[0] {
+	if node != tree.Root {
 		t.Fatalf("the pointer to node returned from tree.Add() should be the same as node in tree Nodes field")
 	}
 }
