@@ -93,6 +93,35 @@ func TestComputeSizesFromRootToNodes(t *testing.T) {
 	}
 }
 
+func TestReComputeSizes(t *testing.T) {
+	nodeCount := 10
+	nodeSize := 100.0
+	nodesToDelete := 3
+
+	tree := NewTreemap()
+
+	seedTreeFromRootToNodesWhenIndexIsEven(&tree, nodeCount, nodeSize)
+
+	expectedSize := float64(nodeCount) * nodeSize * 5
+
+	if tree.ComputeSizes() != expectedSize {
+		t.Fatalf("the expected size was %f, but got %f", expectedSize, tree.ComputeSizes())
+	}
+
+	tree.Nodes = tree.Nodes[:len(tree.Nodes)-nodesToDelete-1]
+	expectedSizeAfterDelete := expectedSize - float64(nodesToDelete) * nodeSize
+
+	if tree.ComputeSizes() != expectedSize {
+		t.Fatalf("the expected size was %f, but got %f", expectedSize, tree.ComputeSizes())
+	}
+
+	tree.ReComputeSizes()
+
+	if tree.ComputeSizes() != expectedSizeAfterDelete {
+		t.Fatalf("the expected size was %f, but got %f", expectedSize, tree.ComputeSizes())
+	}
+}
+
 func seedTreeFromRootToRoot(tree *Treemap, nodeCount int, nodeSize float64) error {
 	rootNode, err := tree.Add("root", nil)
 
