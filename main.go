@@ -1,78 +1,60 @@
-// package main
-// import (
-
-// 	// "fmt"
-
-// 	rl "github.com/gen2brain/raylib-go/raylib"
-// 	// "github.com/jejikeh/process-tree/treemap/filemap"
-// )
-
-// func main() {
-// 	//
-
-// 	// fmt.Printf("\n\nFile count: [%d]\n", len(tree.Nodes))
-// 	// fmt.Printf("\n\nCalculated size: [%f]\n", tree.ComputeSizes())
-
-// 	// tree.ReComputeSizes()
-
-// 	rl.InitWindow(800, 450, "raylib [core] example - basic window")
-// 	defer rl.CloseWindow()
-
-// 	rl.SetTargetFPS(60)
-
-// 	for !rl.WindowShouldClose() {
-// 		rl.BeginDrawing()
-
-// 		rl.ClearBackground(rl.RayWhite)
-
-// 		rl.EndDrawing()
-// 	}
-// }
-
 package main
 
 import (
-	"fmt"
-
-	gui "github.com/gen2brain/raylib-go/raygui"
+	// gui "github.com/gen2brain/raylib-go/raygui"
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/jejikeh/process-tree/treemap/filemap"
 )
 
+const (
+	WindowWidth  = 640
+	WindowHeight = 480
+)
+
+const fontPath = "assets/Lora-Regular.ttf"
+const fontSpacing = 4
+
+var fontSize float32 = 0.7
+
+var font rl.Font
+
 func main() {
-	rl.InitWindow(800, 450, "raygui - button")
+	rl.InitWindow(WindowWidth, WindowHeight, "raygui - button")
 
 	rl.SetTargetFPS(60)
 
-	tree, err := filemap.InitTreemap("samples")
+	_, err := filemap.InitTreemap("samples/dvvf")
 
 	if err != nil {
 		panic(err)
 	}
 
-	button := false
-	var scrollY float32 = 0.0
+	font = rl.LoadFont(fontPath)
+	rl.GenTextureMipmaps(&font.Texture)
+	rl.SetTextureFilter(font.Texture, rl.FilterBilinear)
 
 	for !rl.WindowShouldClose() {
-		scrollY += rl.GetMouseWheelMove()
-
 		rl.BeginDrawing()
 
-		rl.ClearBackground(rl.Black)
+		rl.ClearBackground(rl.White)
 
-		// rl.DrawText(fmt.Sprintf("Total Size: %f", tree.ComputeSizes()), 190, 200, 20, rl.LightGray)
+		rl.DrawRectangleGradientV(0, WindowHeight-font.BaseSize, WindowWidth, font.BaseSize*2, rl.White, rl.Black)
+		rl.DrawTextEx(font, "Hello, World", rl.NewVector2(WindowWidth/25, float32(WindowHeight-float32(font.BaseSize)*fontSize)), float32(font.BaseSize)*fontSize, float32(fontSpacing/font.BaseSize), rl.Black)
 
-		for i, node := range tree.Nodes {
-			rl.DrawText(fmt.Sprintf("[%s] =%f", node.Name, node.Size), 10, int32(39+((i+1)*20)+int(scrollY)), 20, rl.LightGray)
-		}
-
-		button = gui.Button(rl.NewRectangle(10, float32(10+(int(scrollY))), 100, 40), "Compute Sizes")
-		if button {
-			tree.ComputeSizes()
-		}
+		drawTreemap()
 
 		rl.EndDrawing()
 	}
 
 	rl.CloseWindow()
+}
+
+func drawTreemap() {
+	var x0 int32 = WindowWidth / 25
+	var x1 int32 = WindowWidth - x0
+
+	var y0 int32 = x0
+	var y1 int32 = WindowHeight - y0
+
+	rl.DrawRectangleGradientV(x0, y0, x1-x0, y1-y0, rl.Blue, rl.Red)
 }
