@@ -4,14 +4,11 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
-	"sort"
+	// "sort"
 	"strings"
 
 	"github.com/jejikeh/process-tree/treemap"
 )
-
-// @Cleanup: I think it is better to move foundFolders and tree.NewTreemap() to a struct.
-// struct can be internal, i think it will be the better solution, instead of passing tree by parameter?
 
 var foundFolders = make(map[string]*treemap.Node)
 
@@ -23,10 +20,6 @@ func InitTreemap(path string) (treemap.Treemap, error) {
 	}); err != nil {
 		return tree, err
 	}
-
-	sort.Slice(tree.Nodes, func(i, j int) bool {
-		return len(tree.Nodes[i].Name) < len(tree.Nodes[j].Name)
-	})
 
 	return tree, nil
 }
