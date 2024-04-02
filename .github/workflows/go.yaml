@@ -22,9 +22,6 @@ jobs:
           sudo apt-get update -y; sudo apt-get -y install libxi-dev libxinerama-dev libxcursor-dev libxrandr-dev libgl1-mesa-dev
         if: runner.os == 'Linux'
 
-      - name: Get
-        run: go get
-
       - name: Build
         run: go build -v ./...
 
