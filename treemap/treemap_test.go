@@ -109,7 +109,7 @@ func TestReComputeSizes(t *testing.T) {
 	}
 
 	tree.Nodes = tree.Nodes[:len(tree.Nodes)-nodesToDelete-1]
-	expectedSizeAfterDelete := expectedSize - float64(nodesToDelete) * nodeSize
+	expectedSizeAfterDelete := expectedSize - float64(nodesToDelete)*nodeSize
 
 	if tree.ComputeSizes() != expectedSize {
 		t.Fatalf("the expected size was %f, but got %f", expectedSize, tree.ComputeSizes())
