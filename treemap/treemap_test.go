@@ -1,6 +1,9 @@
 package treemap
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestAddWrongNodes(t *testing.T) {
 	tree := NewTreemap()
@@ -56,4 +59,96 @@ func TestAddNode(t *testing.T) {
 	if node != tree.Root {
 		t.Fatalf("the pointer to node returned from tree.Add() should be the same as node in tree Nodes field")
 	}
+}
+
+func TestComputeSizesFromRootToRoot(t *testing.T) {
+	nodeCount := 10
+	nodeSize := 100.0
+
+	tree := NewTreemap()
+
+	if err := seedTreeFromRootToRoot(&tree, nodeCount, nodeSize); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expectedSize := float64(nodeCount) * nodeSize
+
+	if tree.ComputeSizes() != expectedSize {
+		t.Fatalf("the expected size was %f, but got %f", expectedSize, tree.ComputeSizes())
+	}
+}
+
+func TestComputeSizesFromRootToNodes(t *testing.T) {
+	nodeCount := 10
+	nodeSize := 100.0
+
+	tree := NewTreemap()
+
+	seedTreeFromRootToNodesWhenIndexIsEven(&tree, nodeCount, nodeSize)
+
+	expectedSize := float64(nodeCount) * nodeSize * 5
+
+	if tree.ComputeSizes() != expectedSize {
+		t.Fatalf("the expected size was %f, but got %f", expectedSize, tree.ComputeSizes())
+	}
+}
+
+func seedTreeFromRootToRoot(tree *Treemap, nodeCount int, nodeSize float64) error {
+	rootNode, err := tree.Add("root", nil)
+
+	if err != nil {
+		return fmt.Errorf("got unexpected error: %v", err)
+	}
+
+	for i := 0; i < nodeCount; i++ {
+		node, err := tree.Add(fmt.Sprintf("node_%d", i), rootNode)
+
+		if err != nil {
+			return fmt.Errorf("got unexpected error: %v", err)
+		}
+
+		node.Size = nodeSize
+	}
+
+	return nil
+}
+
+func seedTreeFromRootToNodesWhenIndexIsEven(tree *Treemap, nodeCount int, nodeSize float64) error {
+	rootNode, err := tree.Add("root", nil)
+
+	if err != nil {
+		return err
+	}
+
+	node := rootNode
+
+	for i := 0; i < nodeCount; i++ {
+		if i%2 == 0 {
+			if err = seedNode(tree, node, nodeCount, nodeSize); err != nil {
+				return err
+			}
+		} else {
+			node, err = tree.Add(fmt.Sprintf("node_%d", i), rootNode)
+
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func seedNode(tree *Treemap, parentNode *Node, childCount int, nodeSize float64) error {
+	for i := 0; i < childCount; i++ {
+		node, err := tree.Add(fmt.Sprintf("%s_%d", parentNode.Name, i), parentNode)
+
+		if err != nil {
+			return fmt.Errorf("got unexpected error: %v", err)
+		}
+
+		node.Size = nodeSize
+	}
+
+	return nil
 }
