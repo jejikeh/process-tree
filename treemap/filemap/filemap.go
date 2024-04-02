@@ -41,7 +41,11 @@ func visitFile(path string, tree *treemap.Treemap, d fs.DirEntry, err error) err
 			return err
 		}
 	} else {
-		fileInfo, _ := d.Info()
+		fileInfo, err := d.Info()
+
+		if err != nil {
+			return err
+		}
 
 		if err = addFileNode(tree, path, fileInfo); err != nil {
 			return err
