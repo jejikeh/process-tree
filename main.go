@@ -1,6 +1,6 @@
 // package main
-
 // import (
+
 // 	// "fmt"
 
 // 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -8,17 +8,7 @@
 // )
 
 // func main() {
-// 	// tree, err := filemap.InitTreemap("samples")
-
-// 	// if err != nil {
-// 	// 	panic(err)
-// 	// }
-
-// 	// for _, node := range tree.Nodes {
-// 	// 	for _, file := range node.Childrens {
-// 	// 		fmt.Printf("FILE \n\t%s \n\t[%f]\n", file.Name, file.Size)
-// 	// 	}
-// 	// }
+// 	//
 
 // 	// fmt.Printf("\n\nFile count: [%d]\n", len(tree.Nodes))
 // 	// fmt.Printf("\n\nCalculated size: [%f]\n", tree.ComputeSizes())
@@ -34,7 +24,6 @@
 // 		rl.BeginDrawing()
 
 // 		rl.ClearBackground(rl.RayWhite)
-// 		rl.DrawText("Congrats! You created your first window!", 190, 200, 20, rl.LightGray)
 
 // 		rl.EndDrawing()
 // 	}
@@ -47,6 +36,7 @@ import (
 
 	gui "github.com/gen2brain/raylib-go/raygui"
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"github.com/jejikeh/process-tree/treemap/filemap"
 )
 
 func main() {
@@ -54,16 +44,31 @@ func main() {
 
 	rl.SetTargetFPS(60)
 
-	var button bool
+	tree, err := filemap.InitTreemap("samples")
+
+	if err != nil {
+		panic(err)
+	}
+
+	button := false
+	var scrollY float32 = 0.0
 
 	for !rl.WindowShouldClose() {
+		scrollY += rl.GetMouseWheelMove()
+
 		rl.BeginDrawing()
 
 		rl.ClearBackground(rl.Black)
 
-		button = gui.Button(rl.NewRectangle(50, 150, 100, 40), "Click")
+		// rl.DrawText(fmt.Sprintf("Total Size: %f", tree.ComputeSizes()), 190, 200, 20, rl.LightGray)
+
+		for i, node := range tree.Nodes {
+			rl.DrawText(fmt.Sprintf("[%s] =%f", node.Name, node.Size), 10, int32(39+((i+1)*20)+int(scrollY)), 20, rl.LightGray)
+		}
+
+		button = gui.Button(rl.NewRectangle(10, float32(10+(int(scrollY))), 100, 40), "Compute Sizes")
 		if button {
-			fmt.Println("Clicked on button")
+			tree.ComputeSizes()
 		}
 
 		rl.EndDrawing()
